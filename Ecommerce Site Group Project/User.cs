@@ -1,18 +1,22 @@
+using System.Security.Cryptography;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+
 [Flags]
 public enum Permissions
 {
     None = 0,
-    ManageProducts   = 1 << 0,
-    ManageCategories = 1 << 1,
-    ManageUsers      = 1 << 2,
-    EditPermissions  = 1 << 3,
-    All = ManageProducts | ManageCategories | ManageUsers | EditPermissions,
+    EditProducts = 1 << 0,
+    EditCategories = 1 << 1,
+    EditUsers = 1 << 2,
+    All = EditProducts | EditCategories | EditUsers,
 }
 
 public enum Role
 {
-  Customer,
-  Admin,
+    Admin = 1,
+    Employee,
+    Customer,
 }
 
 public interface IUser
@@ -20,18 +24,22 @@ public interface IUser
     Guid Id { get; }
     string Email { get; set; }
     string UserName { get; set; }
-    string HashedPassword { set; }
     string? Address { get; set; }
     Role Role { get; set; }
     Permissions Permissions { get; set; }
 
-    Task<bool> Register();
-    Task<bool> Login(string email, string password);
+    Task<bool> Register(string password);
+    static Task<IUser?> Login(string email, string password) => throw new NotImplementedException();
     Task<bool> Update();
 }
 
 public class User : IUser
 {
+    const string dbPath = "users.json";
+    const int hashIterations = 100_000;
+    const int hashLength = 32;
+
+    public int Version { get; set; }
     public Guid Id { get; private set; }
     public required string Email { get; set; }
     public required string UserName { get; set; }
@@ -42,20 +50,85 @@ public class User : IUser
 
     public User()
     {
+        Version = 1;
         Id = Guid.NewGuid();
         Role = Role.Customer;
         Permissions = Permissions.None;
     }
-    public async Task<bool> Register()
+
+    private static string HashPassword(string password)
     {
-        return await Task.FromResult(false);
+        const int iterations = 100_000;
+        const int hashLength = 32;
+        byte[] salt = RandomNumberGenerator.GetBytes(16);
+        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, hashLength);
+        // Password and salt need to be stored in one password string
+        return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
     }
-    public async Task<bool> Login(string email, string password)
+
+    private static bool VerifyPassword(string password, string storedHash)
     {
-        return await Task.FromResult(false);
+        // Seperating password and salt from string format "salt:password"
+        var parts = storedHash.Split(':');
+        if (parts.Length != 2) return false;
+        byte[] salt = Convert.FromBase64String(parts[0]);
+        byte[] hash = Convert.FromBase64String(parts[1]);
+
+        const int iterations = 100_000;
+        const int hashLength = 32;
+        byte[] computedHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, hashLength);
+        return CryptographicOperations.FixedTimeEquals(hash, computedHash);
     }
+
+    private static async Task<List<User>> LoadUsersAsync()
+    {
+        if (!File.Exists(dbPath)) return [];
+        var json = await File.ReadAllTextAsync(dbPath);
+        return JsonSerializer.Deserialize<List<User>>(json) ?? [];
+    }
+
+    private static async Task SaveUsersAsync(List<User> users)
+    {
+        var json = JsonSerializer.Serialize(users);
+        await File.WriteAllTextAsync(dbPath, json);
+    }
+
+    public async Task<bool> Register(string password)
+    {
+        var users = await LoadUsersAsync();
+        bool emailTaken = users.Any(u => u.Email.Equals(Email, StringComparison.OrdinalIgnoreCase));
+        if (emailTaken) return false;
+
+        HashedPassword = HashPassword(password);
+        users.Add(this);
+        await SaveUsersAsync(users);
+        return true;
+    }
+
+    public static async Task<User?> Login(string email, string password)
+    {
+        var users = await LoadUsersAsync();
+
+        var match = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+        if (match == null) return null;
+        if (!VerifyPassword(password, match.HashedPassword)) return null;
+        return match;
+    }
+
     public async Task<bool> Update()
     {
-        return await Task.FromResult(false);
+        var users = await LoadUsersAsync();
+
+        int indexOfUser = users.FindIndex(u => u.Id == Id);
+        if (indexOfUser == -1) return false;
+
+        if (string.IsNullOrEmpty(HashedPassword))
+            HashedPassword = users[indexOfUser].HashedPassword;
+
+        users[indexOfUser] = this;
+        await SaveUsersAsync(users);
+        return true;
     }
 }
+
+
