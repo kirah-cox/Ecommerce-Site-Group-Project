@@ -1,0 +1,36 @@
+﻿@page "/@productName"
+
+<PageTitle>"product.name"</PageTitle>
+<h2>"product.name"</h2>
+
+<p>
+    "product.description"
+</p>
+
+<h4>Price: product.price</h4>
+
+<button class="btn btn-primary" @onclick="AddItemToCart">Add To Cart</button>
+
+<h4>Customer Reviews</h4>
+
+
+
+@code {
+    // Get the correct product, so you can display the right info
+
+    public void OnInitalized()
+    {
+        //Product product = getMyProductFromID(id);
+
+        // Get the reviews for that item
+        List<string> reviews = new List<string> { };
+
+    }
+
+    public void AddItemToCart()
+    {
+        //Add the item to the cart
+    }
+
+
+}
