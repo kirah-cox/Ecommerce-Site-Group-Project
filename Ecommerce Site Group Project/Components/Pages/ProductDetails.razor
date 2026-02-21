@@ -1,36 +1,68 @@
-﻿@page "/@productName"
+﻿
+@page "/product"
 
-<PageTitle>"product.name"</PageTitle>
-<h2>"product.name"</h2>
+<div class="product-container">
 
-<p>
-    "product.description"
-</p>
+    <div class="details-section">
 
-<h4>Price: product.price</h4>
+        <h1 class="product-title">NAME @currentProduct.Name</h1>
 
-<button class="btn btn-primary" @onclick="AddItemToCart">Add To Cart</button>
+        <div class="price-tag">
+            <span class="currency">$</span>@currentProduct.Price.ToString("F2")
+        </div>
 
-<h4>Customer Reviews</h4>
+        <p class="description">
+            DESCRIPTION @currentProduct.Description
+        </p>
 
+        <div class="actions">
+            <button class="btn-primary" @onclick="AddToCart">Add to Cart</button>
+        </div>
 
+        <hr />
+
+        <section class="reviews-section">
+            <h3>Customer Reviews (@reviews.Count)</h3>
+            <div class="rating-summary">
+                <span class="stars">☆☆☆☆☆</span>
+                <span class="average"> 0 out of 5</span>
+            </div>
+
+            @foreach (var review in reviews)
+            {
+                <div class="review-card">
+                    <div class="review-header">
+                        <strong>@review.UserName</strong>
+                        <span class="review-date">@review.Date.ToShortDateString()</span>
+                    </div>
+                    <p>"@review.Comment"</p>
+                </div>
+            }
+        </section>
+    </div>
+</div>
 
 @code {
-    // Get the correct product, so you can display the right info
+    private Product currentProduct = new() { };
 
-    public void OnInitalized()
+    private List<Review> reviews = new() { };
+
+    private void AddToCart()
     {
-        //Product product = getMyProductFromID(id);
-
-        // Get the reviews for that item
-        List<string> reviews = new List<string> { };
-
+        // Logic to handle cart state
     }
 
-    public void AddItemToCart()
+    public class Product
     {
-        //Add the item to the cart
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public string Description { get; set; }
     }
 
-
+    public class Review
+    {
+        public string UserName { get; set; }
+        public string Comment { get; set; }
+        public DateTime Date { get; set; }
+    }
 }
