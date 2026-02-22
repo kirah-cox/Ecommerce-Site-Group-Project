@@ -13,7 +13,7 @@ namespace Ecommerce_Site_Group_Project.Components.Layout;
 public partial class NavMenu
 {
     int role = PageHiding.role;
-    public static int Admin = 1;
-    public static int Employee = 2;
-    public static int Customer = 3;
+    public static int Admin = (int)Role.Admin;
+    public static int Employee = (int)Role.Employee;
+    public static int Customer = (int)Role.Customer;
 }
