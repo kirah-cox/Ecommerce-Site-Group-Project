@@ -6,7 +6,7 @@
 <h1>Counter</h1>
 
 
-@if (role == Admin || role == Employee)
+@if (role == (int)Role.Admin || role == (int)Role.Employee)
 {
     <p role="status">Current count: @currentCount</p>
     <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>

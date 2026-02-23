@@ -1,0 +1,68 @@
+﻿
+@page "/product"
+
+<div class="product-container">
+
+    <div class="details-section">
+
+        <h1 class="product-title">NAME @currentProduct.Name</h1>
+
+        <div class="price-tag">
+            <span class="currency">$</span>@currentProduct.Price.ToString("F2")
+        </div>
+
+        <p class="description">
+            DESCRIPTION @currentProduct.Description
+        </p>
+
+        <div class="actions">
+            <button class="btn-primary" @onclick="AddToCart">Add to Cart</button>
+        </div>
+
+        <hr />
+
+        <section class="reviews-section">
+            <h3>Customer Reviews (@reviews.Count)</h3>
+            <div class="rating-summary">
+                <span class="stars">☆☆☆☆☆</span>
+                <span class="average"> 0 out of 5</span>
+            </div>
+
+            @foreach (var review in reviews)
+            {
+                <div class="review-card">
+                    <div class="review-header">
+                        <strong>@review.UserName</strong>
+                        <span class="review-date">@review.Date.ToShortDateString()</span>
+                    </div>
+                    <p>"@review.Comment"</p>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@code {
+    private Product currentProduct = new() { };
+
+    private List<Review> reviews = new() { };
+
+    private void AddToCart()
+    {
+        // Logic to handle cart state
+    }
+
+    public class Product
+    {
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class Review
+    {
+        public string UserName { get; set; }
+        public string Comment { get; set; }
+        public DateTime Date { get; set; }
+    }
+}
