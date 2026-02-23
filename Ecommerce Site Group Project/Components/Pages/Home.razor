@@ -4,4 +4,13 @@
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+
+@if (role == (int)Role.Admin)
+{
+    <p>Welcome Admin</p>    
+}
+else
+{
+    <p>Welcome to your new app.</p>
+}
+

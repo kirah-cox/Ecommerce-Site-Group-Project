@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Ecommerce_Site_Group_Project.Components.Layout;
+
 
 [Flags]
 public enum Permissions
@@ -55,7 +57,7 @@ public class User : IUser
         Version = 1;
         Id = Guid.NewGuid();
         Role = Role.Customer;
-        Permissions = Permissions.None;
+        Permissions = Permissions.None; 
     }
 
     private static string HashPassword(string password)
