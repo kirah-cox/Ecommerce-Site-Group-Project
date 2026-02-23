@@ -1,0 +1,17 @@
+﻿@page "/AllProducts"
+
+<h3>All Products</h3>
+
+<div class="Main-container">
+    @foreach(var product in products)
+    {
+        <div class="product">
+
+        </div>
+    }
+</div>
+
+@code {
+    List<Product> products = new List<Product> { };
+
+}
