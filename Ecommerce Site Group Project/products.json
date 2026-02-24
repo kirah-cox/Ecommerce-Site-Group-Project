@@ -1,0 +1,44 @@
+[
+  {
+    "Version": 1,
+    "Id": "3c393904-0b35-46c1-b1eb-eddf6eaae84a",
+    "Name": "Wireless Headphones",
+    "Price": 79.99,
+    "Description": "High-quality wireless headphones with noise cancellation"
+  },
+  {
+    "Version": 1,
+    "Id": "1aca618a-4909-462e-b37e-d10229f5514d",
+    "Name": "USB-C Cable",
+    "Price": 12.99,
+    "Description": "Durable 6ft USB-C charging and data cable"
+  },
+  {
+    "Version": 1,
+    "Id": "8239d15b-7be1-466e-994f-7e98b009f9d2",
+    "Name": "Phone Stand",
+    "Price": 24.99,
+    "Description": "Adjustable phone stand for desk and travel"
+  },
+  {
+    "Version": 1,
+    "Id": "b9bbe3c4-5512-4e52-aa5d-3254c2e678cd",
+    "Name": "Power Bank",
+    "Price": 39.99,
+    "Description": "20000mAh portable power bank with fast charging"
+  },
+  {
+    "Version": 1,
+    "Id": "1cd259f6-b61f-4b48-9c1e-5056c74aebef",
+    "Name": "Screen Protector",
+    "Price": 9.99,
+    "Description": "Tempered glass screen protector for smartphones"
+  },
+  {
+    "Version": 1,
+    "Id": "18d69cf0-9783-4267-ba9f-0b6731c0c5e6",
+    "Name": "Laptop Cooling Pad",
+    "Price": 34.99,
+    "Description": "Laptop cooling pad with adjustable fan speed"
+  }
+]

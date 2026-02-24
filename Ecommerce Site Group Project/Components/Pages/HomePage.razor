@@ -1,0 +1,68 @@
+﻿@page "/"
+@using Ecommerce_Site_Group_Project.Components
+
+<PageTitle>Home</PageTitle>
+
+<div class="home-container">
+    <h1>Featured Products</h1>
+    
+    @if (products == null)
+    {
+        <p>Loading products...</p>
+    }
+    else if (products.Count == 0)
+    {
+        <div class="no-products">
+            <p>No products available yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="products-grid">
+            @foreach (var product in products)
+            {
+                <ProductCard Product="product" />
+            }
+        </div>
+    }
+</div>
+
+<Footer />
+
+@code {
+    private List<Product>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await Product.ProductCollection.LoadAsync();
+            
+            // If no products exist, create sample products for MVP
+            if (products.Count == 0)
+            {
+                var sampleProducts = new List<Product>
+                {
+                    new Product { Name = "Wireless Headphones", Price = 79.99m, Description = "High-quality wireless headphones with noise cancellation" },
+                    new Product { Name = "USB-C Cable", Price = 12.99m, Description = "Durable 6ft USB-C charging and data cable" },
+                    new Product { Name = "Phone Stand", Price = 24.99m, Description = "Adjustable phone stand for desk and travel" },
+                    new Product { Name = "Power Bank", Price = 39.99m, Description = "20000mAh portable power bank with fast charging" },
+                    new Product { Name = "Screen Protector", Price = 9.99m, Description = "Tempered glass screen protector for smartphones" },
+                    new Product { Name = "Laptop Cooling Pad", Price = 34.99m, Description = "Laptop cooling pad with adjustable fan speed" }
+                };
+
+                foreach (var product in sampleProducts)
+                {
+                    await product.Add();
+                }
+
+                products = sampleProducts;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading products: {ex.Message}");
+            products = new List<Product>();
+        }
+    }
+}
