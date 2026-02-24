@@ -1,0 +1,49 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Ecommerce Site Group Project</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        @if (role == (int)Role.Admin || role == (int)Role.Employee)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="counter">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+                </NavLink>
+            </div>
+        }
+        
+        @if (role == (int)Role.Admin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class= "nav-link" href = "weather">
+                    <span class= "bi bi-list-nested-nav-menu" aria-hidden = "true" ></span> Weather
+                </NavLink>
+            </div>
+        }
+        
+        @if (role == (int)Role.Admin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="product">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                    </svg>
+
+                    <span aria-hidden="true"></span> Product
+                </NavLink>
+            </div>
+        }
+        
+    </nav>
+</div>
+

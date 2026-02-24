@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Ecommerce_Site_Group_Project.Components.Layout;
+
 
 [Flags]
 public enum Permissions
@@ -35,6 +37,8 @@ public interface IUser
 
 public class User : IUser
 {
+    private static readonly SemaphoreSlim _usersLock = new(1, 1);
+
     const string dbPath = "users.json";
     const int hashIterations = 100_000;
     const int hashLength = 32;
@@ -53,7 +57,7 @@ public class User : IUser
         Version = 1;
         Id = Guid.NewGuid();
         Role = Role.Customer;
-        Permissions = Permissions.None;
+        Permissions = Permissions.None; 
     }
 
     private static string HashPassword(string password)
@@ -89,46 +93,72 @@ public class User : IUser
 
     private static async Task SaveUsersAsync(List<User> users)
     {
+        // replace the file directly to avoid file corruption if the program crashes while writing
+        var tempFilePath = dbPath + ".tmp";
         var json = JsonSerializer.Serialize(users);
-        await File.WriteAllTextAsync(dbPath, json);
+        await File.WriteAllTextAsync(tempFilePath, json);
+        if (File.Exists(dbPath)) File.Replace(tempFilePath, dbPath, null);
+        else File.Move(tempFilePath, dbPath);
     }
 
     public async Task<bool> Register(string password)
     {
-        var users = await LoadUsersAsync();
-        bool emailTaken = users.Any(u => u.Email.Equals(Email, StringComparison.OrdinalIgnoreCase));
-        if (emailTaken) return false;
+        await _usersLock.WaitAsync();
+        try
+        {
+            var users = await LoadUsersAsync();
+            bool emailTaken = users.Any(u => u.Email.Equals(Email, StringComparison.OrdinalIgnoreCase));
+            if (emailTaken) return false;
 
-        HashedPassword = HashPassword(password);
-        users.Add(this);
-        await SaveUsersAsync(users);
-        return true;
+            HashedPassword = HashPassword(password);
+            users.Add(this);
+            await SaveUsersAsync(users);
+            return true;
+        }
+        finally
+        {
+            _usersLock.Release();
+        }
     }
 
     public static async Task<User?> Login(string email, string password)
     {
-        var users = await LoadUsersAsync();
+        await _usersLock.WaitAsync();
+        try
+        {
+            var users = await LoadUsersAsync();
 
-        var match = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        if (match == null) return null;
-        if (!VerifyPassword(password, match.HashedPassword)) return null;
-        return match;
+            var match = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (match == null) return null;
+            if (!VerifyPassword(password, match.HashedPassword)) return null;
+            return match;
+        }
+        finally
+        {
+            _usersLock.Release();
+        }
     }
 
     public async Task<bool> Update()
     {
-        var users = await LoadUsersAsync();
+        await _usersLock.WaitAsync();
+        try
+        {
+            var users = await LoadUsersAsync();
 
-        int indexOfUser = users.FindIndex(u => u.Id == Id);
-        if (indexOfUser == -1) return false;
+            int indexOfUser = users.FindIndex(u => u.Id == Id);
+            if (indexOfUser == -1) return false;
 
-        if (string.IsNullOrEmpty(HashedPassword))
-            HashedPassword = users[indexOfUser].HashedPassword;
+            if (string.IsNullOrEmpty(HashedPassword))
+                HashedPassword = users[indexOfUser].HashedPassword;
 
-        users[indexOfUser] = this;
-        await SaveUsersAsync(users);
-        return true;
+            users[indexOfUser] = this;
+            await SaveUsersAsync(users);
+            return true;
+        }
+        finally
+        {
+            _usersLock.Release();
+        }
     }
 }
-
-
