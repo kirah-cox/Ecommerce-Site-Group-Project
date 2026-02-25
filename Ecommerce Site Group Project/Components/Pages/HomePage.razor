@@ -1,10 +1,118 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using Ecommerce_Site_Group_Project.Components
 
 <PageTitle>Home</PageTitle>
 
+
 <div class="home-container">
     <h1>Featured Products</h1>
+    
+    <div>
+        <form>
+            <div class="filter-buttons-main-display">
+                <input type="button" @onclick="SortProductsByPrice" class="filter-buttons" value="Sort By Price">
+
+                <input type="button" @onclick="SortProductsByName" class="filter-buttons" value="Sort By Name">
+
+                <input type="button" @onclick="SortProductsByMaxPrice" class="filter-buttons" value="Sort By Max Price">
+
+                <input type="button" @onclick="SortProductsByPriceRange" class="filter-buttons" value="Sort By Price Range">
+
+                <input type="submit" class="filter-buttons" value="Reset Filtering">
+            </div>
+
+            @if (SortingByMaxPrice)
+            {
+                <div class="radio-sorting-container">
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 10)" type="radio" name="price">
+                        <label> Up to $10</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 20)" type="radio" name="price">
+                        <label> Up to $20</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 30)" type="radio" name="price">
+                        <label> Up to $30</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 40)" type="radio" name="price">
+                        <label> Up to $40</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 50)" type="radio" name="price">
+                        <label> Up to $50</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 60)" type="radio" name="price">
+                        <label> Up to $60</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 70)" type="radio" name="price">
+                        <label> Up to $70</label><br>
+                    </div>
+
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 80)" type="radio" name="price">
+                        <label> Up to $80</label><br>
+                    </div>
+                </div>
+            }
+
+            @if (SortingByPriceRange)
+            {
+                <div class="radio-sorting-container">
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(0, 10)" type="radio" name="price">
+                        <label> $0 to $10</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(10, 20)" type="radio" name="price">
+                        <label> $10 to $20</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(20, 30)" type="radio" name="price">
+                        <label> $20 to $30</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(30, 40)" type="radio" name="price">
+                        <label> $30 to $40</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(40, 50)" type="radio" name="price">
+                        <label> $40 to $50</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(50, 60)" type="radio" name="price">
+                        <label> $50 to $60</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(60, 70)" type="radio" name="price">
+                        <label> $60 to $70</label><br>
+                    </div>
+                    
+                    <div>
+                        <input @onclick="() => FilterProductsByPrice(70, 80)" type="radio" name="price">
+                        <label> $70 to $80</label><br>
+                    </div>
+                </div>
+            }
+        </form>
+    </div>
     
     @if (products == null)
     {
@@ -31,13 +139,19 @@
 
 @code {
     private List<Product>? products;
+    private List<Product>? OriginalProductList;
+    private bool SortedByPriceAscending = false;
+    private bool SortedByNameAscending = false;
+    private bool SortingByMaxPrice = false;
+    private bool SortingByPriceRange = false;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             products = await Product.ProductCollection.LoadAsync();
-            
+            OriginalProductList = await Product.ProductCollection.LoadAsync();
+
             // If no products exist, create sample products for MVP
             if (products.Count == 0)
             {
@@ -57,6 +171,7 @@
                 }
 
                 products = sampleProducts;
+                OriginalProductList = sampleProducts;
             }
         }
         catch (Exception ex)
@@ -64,5 +179,77 @@
             Console.WriteLine($"Error loading products: {ex.Message}");
             products = new List<Product>();
         }
+    }
+
+    void SortProductsByPrice()
+    {
+        if (products != null)
+        {
+            if (SortedByPriceAscending)
+            {
+                products = products.OrderByDescending(p => p.Price).ToList();
+                SortedByPriceAscending = false;
+            }
+            else
+            {
+                products = products.OrderBy(p => p.Price).ToList();
+                SortedByPriceAscending = true;
+            }
+        }
+    }
+
+    void SortProductsByName()
+    {
+        if (products != null)
+        {
+            if (SortedByNameAscending)
+            {
+                products = products.OrderByDescending(p => p.Name).ToList();
+                SortedByNameAscending = false;
+            }
+            else
+            {
+                products = products.OrderBy(p => p.Name).ToList();
+                SortedByNameAscending = true;
+            }
+        }
+    }
+
+    void FilterProductsByPrice(decimal minPrice, decimal maxPrice)
+    {
+        products = OriginalProductList;
+
+        if (products != null)
+        {
+            products = products.Where(p => p.Price >= minPrice && p.Price <= maxPrice).ToList();
+        }
+    }
+
+    void SortProductsByMaxPrice()
+    {
+        if (SortingByMaxPrice)
+        {
+            SortingByMaxPrice = false;
+        }
+        else
+        {
+            SortingByMaxPrice = true;
+        }
+
+        SortingByPriceRange = false;
+    }
+
+     void SortProductsByPriceRange()
+    {
+        if (SortingByPriceRange)
+        {
+            SortingByPriceRange = false;
+        }
+        else
+        {
+            SortingByPriceRange = true;
+        }
+
+        SortingByMaxPrice = false;
     }
 }
