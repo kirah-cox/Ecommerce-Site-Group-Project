@@ -23,4 +23,14 @@
 @code {
     [Parameter]
     public Product? Product { get; set; }
+
+
+    public void GoToProductPage()
+    {
+        if (Product?.Id != default(Guid))
+        {
+            string URL = $"/product/{Product.Id}";
+            NavManager.NavigateTo(URL, true);
+        }
+    }
 }
