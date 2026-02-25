@@ -1,18 +1,18 @@
-﻿
+﻿@using Ecommerce_Site_Group_Project
 @page "/product"
 
 <div class="product-container">
 
     <div class="details-section">
 
-        <h1 class="product-title">NAME @currentProduct.Name</h1>
+        <h1 class="product-title"> @currentProduct.Name</h1>
 
         <div class="price-tag">
             <span class="currency">$</span>@currentProduct.Price.ToString("F2")
         </div>
 
         <p class="description">
-            DESCRIPTION @currentProduct.Description
+            @currentProduct.Description
         </p>
 
         <div class="actions">
@@ -43,7 +43,9 @@
 </div>
 
 @code {
-    private Product currentProduct = new() { };
+
+   
+    private Product currentProduct = new Product() { Name = "Sample Product", Description = "Sample Description" };
 
     private List<Review> reviews = new() { };
 
@@ -52,17 +54,11 @@
         // Logic to handle cart state
     }
 
-    public class Product
-    {
-        public string Name{ get; set; }
-        public decimal Price { get; set; }
-        public string Description { get; set; }
-    }
-
     public class Review
     {
         public string UserName { get; set; }
         public string Comment { get; set; }
         public DateTime Date { get; set; }
     }
+
 }
