@@ -300,3 +300,52 @@ h1{
     justify-content: space-evenly;
     margin-bottom: 20px;
 }
+
+.admin-dashboard h1 {
+    color: #237227;
+}
+
+.admin-dashboard {
+    padding: 2rem;
+}
+
+.dashboard-summary {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: #f4f4f4;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 200px;
+    text-align: center;
+}
+
+.chart-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.bar-wrapper {
+    text-align: center;
+}
+
+.bar {
+    width: 40px;
+    background-color: steelblue;
+}
+
+.top-products-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.top-products-table th,
+.top-products-table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+}
