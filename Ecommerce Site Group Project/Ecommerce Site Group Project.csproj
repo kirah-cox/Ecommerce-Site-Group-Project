@@ -9,4 +9,12 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\laptop-cooling-pad.jpg" />
+    <None Include="wwwroot\phone-stand.jpg" />
+    <None Include="wwwroot\powerbank.jpg" />
+    <None Include="wwwroot\screenprotector.jpg" />
+    <None Include="wwwroot\wireless-headphone.jpg" />
+  </ItemGroup>
+
 </Project>

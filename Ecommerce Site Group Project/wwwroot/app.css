@@ -272,3 +272,31 @@ h1{
     padding: 50px 20px;
     color: #999;
 }
+
+.filter-buttons-main-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #237227;
+    border-radius: 5px;
+}
+
+.filter-buttons {
+    padding: 10px 15px;
+    background-color: #237227;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+    .filter-buttons:hover {
+        background-color: #1a561f;
+    }
+
+.radio-sorting-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 20px;
+}
