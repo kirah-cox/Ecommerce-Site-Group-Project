@@ -1,0 +1,57 @@
+@page "/login"
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using System.Security.Claims
+@inject NavigationManager Navigation
+
+<h2>Login</h2>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div style="color: red;">@error</div>
+}
+
+<form method="post" @onsubmit="HandleLogin">
+    <div>
+        <label>Email:</label>
+        <input type="email" @bind="email" required />
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" @bind="password" required />
+    </div>
+    <button type="submit">Login</button>
+</form>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string error = "";
+
+    private async Task HandleLogin()
+    {
+        var user = await User.Login(email, password);
+        
+        if (user != null)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
+            };
+            
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            
+            Navigation.NavigateTo("/", true);
+        }
+        else
+        {
+            error = "Incorrect email or password";
+        }
+    }
+}
