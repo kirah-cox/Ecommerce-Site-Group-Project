@@ -9,10 +9,17 @@ using System.Linq;
 
 public class Product
 {
-    const string savingJson = "products.json";
+    private static string GetProductsJsonPath()
+    {
+        // Get the base directory where the application is running
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        // Navigate to the project root (typically up from bin/Debug/net10.0)
+        var projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+        return Path.Combine(projectRoot, "products.json");
+    }
 
     public int Version { get; set; }
-    public Guid Id { get; private set; }
+    public Guid Id { get; set; }
     public required string Name { get; set; }
     public decimal Price { get; set; }
     public string? Description { get; set; }
@@ -26,16 +33,18 @@ public class Product
 
     private static async Task<List<Product>> LoadProductsAsync()
     {
-        if (!File.Exists(savingJson)) 
+        var filePath = GetProductsJsonPath();
+        if (!File.Exists(filePath)) 
             return new List<Product>();
-        var json = await File.ReadAllTextAsync(savingJson);
+        var json = await File.ReadAllTextAsync(filePath);
         return JsonSerializer.Deserialize<List<Product>>(json) ?? new List<Product>();
     }
 
     private static async Task SaveProductsAsync(List<Product> products)
     {
+        var filePath = GetProductsJsonPath();
         var json = JsonSerializer.Serialize(products);
-        await File.WriteAllTextAsync(savingJson, json);
+        await File.WriteAllTextAsync(filePath, json);
     }
 
     // Instance helpers to persist this product (similar pattern to User)

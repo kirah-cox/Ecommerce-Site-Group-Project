@@ -31,7 +31,10 @@
 
     public void GoToProductPage()
     {
-        string URL = "/product" ;
-        NavManager.NavigateTo(URL , true);
+        if (Product?.Id != default(Guid))
+        {
+            string URL = $"/product/{Product.Id}";
+            NavManager.NavigateTo(URL, true);
+        }
     }
 }

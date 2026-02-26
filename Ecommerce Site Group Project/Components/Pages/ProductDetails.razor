@@ -1,23 +1,33 @@
-﻿@using Ecommerce_Site_Group_Project
-@page "/product"
+@using Ecommerce_Site_Group_Project
+@page "/product/{ProductId}"
 
 <div class="product-container">
 
     <div class="details-section">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p style="color: red;">@errorMessage</p>
+        }
+        else if (currentProduct != null)
+        {
+            <h1 style="color:black" class="product-title">@currentProduct.Name</h1>
 
-        <h1 class="product-title"> @currentProduct.Name</h1>
+            <div class="price-tag">
+                <span class="currency">$</span>@currentProduct.Price.ToString("F2")
+            </div>
 
-        <div class="price-tag">
-            <span class="currency">$</span>@currentProduct.Price.ToString("F2")
-        </div>
+            <p class="description">
+                @currentProduct.Description
+            </p>
 
-        <p class="description">
-            @currentProduct.Description
-        </p>
-
-        <div class="actions">
-            <button class="btn-primary" @onclick="AddToCart">Add to Cart</button>
-        </div>
+            <div class="actions">
+                <button class="btn-primary" @onclick="AddToCart">Add to Cart</button>
+            </div>
+        }
+        else
+        {
+            <p>Loading product...</p>
+        }
 
         <hr />
 
@@ -43,11 +53,37 @@
 </div>
 
 @code {
+    [Parameter]
+    public string? ProductId { get; set; }
 
-   
-    private Product currentProduct = new Product() { Name = "Sample Product", Description = "Sample Description" };
-
+    private Product? currentProduct;
     private List<Review> reviews = new() { };
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(ProductId) && Guid.TryParse(ProductId, out var productGuid))
+            {
+                var products = await Product.ProductCollection.LoadAsync();
+                currentProduct = products.FirstOrDefault(p => p.Id == productGuid);
+                
+                if (currentProduct == null)
+                {
+                    errorMessage = $"Product with ID {ProductId} not found. Loaded {products.Count} products.";
+                }
+            }
+            else
+            {
+                errorMessage = $"Invalid product ID: {ProductId}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading product: {ex.Message}";
+        }
+    }
 
     private void AddToCart()
     {
