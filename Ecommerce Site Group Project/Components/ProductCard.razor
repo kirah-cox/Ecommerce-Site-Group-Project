@@ -1,6 +1,6 @@
 @using System
 @inject NavigationManager NavManager
-
+@inject ActiveOrders ShopingCart
 
 <div class="product-card">
     <div class="product-name-bar">
@@ -18,7 +18,7 @@
         </div>
         <div class="product-footer">
             <span class="product-price">$@Product.Price.ToString("F2")</span>
-            <button class="add-to-cart-btn">Add to Cart</button>
+            <button @onclick="() => ShopingCart.AddItemToOrder(Product, 1)" class="add-to-cart-btn">Add to Cart</button>
 
         </div>
     </div>

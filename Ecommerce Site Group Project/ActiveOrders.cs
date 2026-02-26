@@ -5,7 +5,7 @@ public class ActiveOrders
     public List<Product> Order { get; private set; } = new List<Product> { };
     public decimal PriceTotal { get; private set; }
 
-    ActiveOrders()
+    public ActiveOrders()
     {
         PriceTotal = 0;
     }

@@ -3,6 +3,7 @@ using Ecommerce_Site_Group_Project.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<ActiveOrders>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
