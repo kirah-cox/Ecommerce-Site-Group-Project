@@ -1,0 +1,141 @@
+@page "/admin/dashboard"
+@rendermode InteractiveServer
+
+<PageTitle>Admin Sales Dashboard</PageTitle>
+
+<div class="admin-dashboard">
+
+    <h1>Sales Dashboard</h1>
+
+    @if (!loaded)
+    {
+        <p>Loading sales data...</p>
+    }
+    else
+    {
+        <div class="dashboard-summary">
+
+            <div class="summary-card">
+                <h3>Total Revenue</h3>
+                <p>$@TotalRevenue.ToString("F2")</p>
+            </div>
+
+            <div class="summary-card">
+                <h3>Total Items Sold</h3>
+                <p>@TotalQuantitySold</p>
+            </div>
+
+        </div>
+
+        <h2>Sales Over Time</h2>
+
+        <div class="chart-container">
+            @foreach (var day in SalesByDate)
+            {
+                var height = MaxDailyRevenue == 0
+                    ? 0
+                    : (day.Value / MaxDailyRevenue) * 200;
+
+                <div class="bar-wrapper">
+                    <div class="bar" style="height:@($"{height}px")"></div>
+                    <span>@day.Key.ToShortDateString()</span>
+                </div>
+            }
+        </div>
+
+        <h2>Top Products</h2>
+
+        <table class="top-products-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in TopProducts)
+                {
+                    <tr>
+                        <td>@product.Name</td>
+                        <td>@product.Quantity</td>
+                        <td>$@product.Revenue.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+
+    private List<Product> products = new();
+    private bool loaded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SalesHistory.InitializeSalesHistory();
+        products = await Product.ProductCollection.LoadAsync();
+        loaded = true;
+    }
+
+    private int TotalQuantitySold =>
+        SalesHistory.SalesData
+            .SelectMany(u => u.Value)
+            .Sum(s => s.Quantity);
+
+    private decimal TotalRevenue =>
+        SalesHistory.SalesData
+            .SelectMany(u => u.Value)
+            .Sum(s =>
+            {
+                var product = products.FirstOrDefault(p => p.Id == s.ProductId);
+                return product != null ? product.Price * s.Quantity : 0;
+            });
+
+    private Dictionary<DateTime, decimal> SalesByDate =>
+        SalesHistory.SalesData
+            .SelectMany(u => u.Value)
+            .GroupBy(s => s.Date.Date)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(s =>
+                {
+                    var product = products.FirstOrDefault(p => p.Id == s.ProductId);
+                    return product != null ? product.Price * s.Quantity : 0;
+                })
+            )
+            .OrderBy(k => k.Key)
+            .ToDictionary(k => k.Key, v => v.Value);
+
+    private decimal MaxDailyRevenue =>
+        SalesByDate.Count == 0 ? 0 : SalesByDate.Max(d => d.Value);
+
+    private List<TopProductView> TopProducts =>
+        SalesHistory.SalesData
+            .SelectMany(u => u.Value)
+            .GroupBy(s => s.ProductId)
+            .Select(g =>
+            {
+                var product = products.FirstOrDefault(p => p.Id == g.Key);
+                var quantity = g.Sum(x => x.Quantity);
+                var revenue = product != null ? product.Price * quantity : 0;
+
+                return new TopProductView
+                {
+                    Name = product?.Name ?? "Unknown",
+                    Quantity = quantity,
+                    Revenue = revenue
+                };
+            })
+            .OrderByDescending(x => x.Quantity)
+            .Take(5)
+            .ToList();
+
+    private class TopProductView
+    {
+        public string Name { get; set; } = "";
+        public int Quantity { get; set; }
+        public decimal Revenue { get; set; }
+    }
+}
